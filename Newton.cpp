@@ -1,11 +1,14 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
+#include <time.h>
 
 using namespace std;
 
 typedef vector<double> Vector;
 typedef vector<Vector> Matriz;
+
+int sistema;
 
 void Newton();
 void Portada();
@@ -13,24 +16,21 @@ int ElegirSistema();
 Matriz Producto(Matriz matriza, Matriz matrizb);
 Matriz Resta(Matriz a, Matriz b);
 Matriz Inversa(Matriz matriz);
-
-
-
-class Funciones{
-
-  public:
-
-    int sistema;
-
-    Vector F(Vector X);
-    double f(int fun, Vector X);
-    Matriz J(Vector X);
-
-};
+Vector F(Vector X);
+double f(int fun, Vector X);
+Matriz J(Vector X);
+Vector PuntoInicial();
 
 
 int main() {
+    time_t t_i, t_f;
+    time(&t_i); //Se calcula la hora de inicio
+
     Newton();
+
+    time(&t_f); //Se calcula la hora de fin
+    cout<<"\nTiempo de ejecucion: "<<difftime(t_f,t_i)<< " segundos"; //Se imprime el tiempo que estuvo el usuario en el código
+
     return 0;
 }
 
@@ -38,24 +38,74 @@ int main() {
 //Funciones del método
 
 void Newton(){
-    Funciones f;
+    
+    Vector X_k, X_k1;
+    int iter_max, contador=0;
+    double tol;
     Portada();
     bool continua = true;
     char resp;
     while(true){ //Elegir sistema de ecuaciones
-        f.sistema = ElegirSistema();
+        sistema = ElegirSistema();
         while(true){ //Elegir datos iniciales
+            
+            //Se ingresa el punto inicial
+            X_k = PuntoInicial();
+
+            //Se ingresan las iteraciones mínimas
+            while(true){ //try-catch continúa hasta que se reciba una entrada válida
+                try{
+                    cout<<"\nIngresa la cantidad de iteraciones maximas: ";
+                    cin>>iter_max; //Se ingresa la opción por consola
+                    if(0 < iter_max ) break; 
+                    else{
+                        cout<<"\n----> No es una entrada valida. Vuelve a intentarlo.\n\n";
+                        throw iter_max;
+                    }
+                }catch(...){ //En caso de error 
+                    //Se descarta la entrada
+                    cin.clear();
+                    cin.ignore(100, '\n');
+                }
+            }
+
+            //Se ingresa la tolerancia
+            while(true){ //try-catch continúa hasta que se reciba una entrada válida
+                try{
+                    cout<<"\nIngresa la tolerancia: ";
+                    cin>>tol; //Se ingresa la opción por consola
+                    if(0 < tol && tol < 1) break; 
+                    else{
+                        cout<<"\n----> No es una entrada valida. Vuelve a intentarlo.\n\n";
+                        throw tol;
+                    }
+                }catch(...){ //En caso de error 
+                    //Se descarta la entrada
+                    cin.clear();
+                    cin.ignore(100, '\n');
+                }
+            }
+
+            //Se lleva a cabo el método
+            contador=0;
+            while(contador < iter_max){
 
 
-            cout<<"Desea cambiar los datos de entrada para buscar otra raiz? (S/N): "<<endl;
+
+                contador++;
+            }
+
+
+
+            cout<<"\nDesea cambiar los datos de entrada para buscar otra raiz? (S/N): ";
             cin>>resp;
-            if(resp=='n'||resp=='N'){
+            if(resp=='n'||resp=='N'){ //si se ingresa que no, se termina el while y ejecuta la siguiente línea
                 break;
             }
         }
-        cout<<"Desea resolver otro sistema de ecuaciones? (S/N): "<<endl;
+        cout<<"\nDesea resolver otro sistema de ecuaciones? (S/N): ";
         cin>>resp;
-        if(resp=='n'||resp=='N'){
+        if(resp=='n'||resp=='N'){ //si se ingresa que no, se termina el while y termina el programa
             break;
         }
     }
@@ -196,22 +246,22 @@ Matriz Inversa(Matriz matriz){ //Inversa por Gauss-Jordan
     return inversa;
 }
 
-//Métodos de la clase Funciones
+//Funciones para el método
 
-Vector Funciones::F(Vector X){
-        Vector Fx=X;
-        if(sistema==1||sistema==2){
-            Fx[0]=f(1, X);
-            Fx[1]=f(2, X);
-        }else{
-            Fx[0]=f(1, X);
-            Fx[1]=f(2, X);
-            Fx[2]=f(3, X);
-        }
-        return Fx;
+Vector F(Vector X){
+    Vector Fx=X;
+    if(sistema==1||sistema==2){
+        Fx[0]=f(1, X);
+        Fx[1]=f(2, X);
+    }else{
+        Fx[0]=f(1, X);
+        Fx[1]=f(2, X);
+        Fx[2]=f(3, X);
+    }
+    return Fx;
     }
 
-double Funciones::f(int fun, Vector X){
+double f(int fun, Vector X){
 
         if(sistema==1){         //se eligió el 1er sistema de ecuaciones
 
@@ -239,7 +289,7 @@ double Funciones::f(int fun, Vector X){
         }
     }
 
-Matriz Funciones::J(Vector X){
+Matriz J(Vector X){
     Matriz Jac;
     int n = X.size();
     if(sistema==1){
@@ -288,6 +338,28 @@ Matriz Funciones::J(Vector X){
 
     }
     return Jac;
+}
+
+Vector PuntoInicial(){
+    Vector X;
+    double aux;
+
+    cout<<"\nIngresa los valores de tu punto inicial"<<endl;
+    cout<<"Ingresa x: ";
+    cin>>aux;
+    X.push_back(aux);
+
+    cout<<"Ingresa y: ";
+    cin>>aux;
+    X.push_back(aux);
+
+    if(sistema==3||sistema==4){
+        cout<<"Ingresa z: ";
+        cin>>aux;
+        X.push_back(aux);
+    }
+
+    return X;
 }
 
 
