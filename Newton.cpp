@@ -20,6 +20,8 @@ Vector F(Vector X);
 double f(int fun, Vector X);
 Matriz J(Vector X);
 Vector PuntoInicial();
+void Imprimir(int k, Vector X, Matriz J, Vector F, Matriz JF, double NF);
+Vector ProductoEscalar(double d, Vector a);
 
 
 int main() {
@@ -39,7 +41,8 @@ int main() {
 
 void Newton(){
     
-    Vector X_k, X_k1;
+    Vector X_k, X_k1, FX_k, FX_k1;
+    Matriz Jacobiana;
     int iter_max, contador=0;
     double tol;
     Portada();
@@ -87,15 +90,26 @@ void Newton(){
             }
 
             //Se lleva a cabo el método
-            contador=0;
-            while(contador < iter_max){
+            /*contador=0;
 
+            cout<<"k"<<" | "<<"Xk"<<"\t\t"<<"J(Xk)"<<"\t\t"<<"F(Xk)"<<"\t\t"<<"-(J-1)*F"<<"\t\t";
 
+            cout<< "\t|\t||F||\t|\tEa"<<endl;
 
+            while(contador <= iter_max){
+                FX_k=F(X_k);
+                Jacobiana = J(X_k);
+                if(contador = 0){
+                    Imprimir(contador, X_k, Jacobiana, FX_k, ProductoEscalar(-1,Producto(Inversa(Jacobiana),FX_k)),max(FX_k));
+                }else{
+
+                }
+                X_k1 = Resta(X_k,Producto(Inversa(Jacobiana),FX_k));
                 contador++;
-            }
+                break;
+            }*/
 
-
+            
 
             cout<<"\nDesea cambiar los datos de entrada para buscar otra raiz? (S/N): ";
             cin>>resp;
@@ -194,6 +208,26 @@ Matriz Producto(Matriz matriza, Matriz matrizb){ //Producto de 2 matrices
     }
 }
 
+Vector Producto(Matriz matriza, Vector veca){ //Producto de matriz y vector
+    int m=matriza.size();
+    int p1=matriza[0].size();
+    int p2=veca.size();
+    double aux;
+    Vector producto;
+    if(p1==p2){
+        for(int i = 0 ; i < m ; i++){
+            aux=0;
+            for(int k = 0 ; k < p1 ; k++){
+                aux+=matriza[i][k]*veca[k];
+            }
+            producto.push_back(aux);
+        }
+    }else{
+        cout<<"No es posible realizar el producto con las dimensiones ingresadas. "<<endl;
+    }
+    return producto;
+}
+
 Matriz Resta(Matriz a, Matriz b){
     Matriz resultado;
     Vector vecaux;
@@ -205,6 +239,16 @@ Matriz Resta(Matriz a, Matriz b){
         }
         resultado.push_back(vecaux);
         vecaux.clear();
+    }
+    return resultado;
+}
+
+Vector Resta(Vector a, Vector b){
+    Vector resultado;
+    int m = a.size();
+    int n = a.size();
+    for(int i = 0 ; i < m ; i++){
+        resultado.push_back(a[i]-b[i]);
     }
     return resultado;
 }
@@ -244,6 +288,26 @@ Matriz Inversa(Matriz matriz){ //Inversa por Gauss-Jordan
     }
 
     return inversa;
+}
+
+Vector ProductoEscalar(double d, Vector a){
+    Vector vecaux;
+    int n = a.size();
+  for(int j = 0 ; j < n ; j++){
+        vecaux.push_back(a[j]*d);
+    }
+    return vecaux;
+}
+
+double max(Vector X){
+    double aux;
+    aux=X[0];
+    for(int i = 0 ; i < X.size() ; i++){
+        if(X[i]>aux){
+            aux=X[i];
+        }
+    }
+    return aux;
 }
 
 //Funciones para el método
@@ -362,7 +426,25 @@ Vector PuntoInicial(){
     return X;
 }
 
+void Imprimir(int k, Vector X, Matriz J, Vector F, Vector JF, double NF){
+    int n = X.size();
+    for(int i = 0 ; i < n ; i++){
+        if(i==0){
+            cout<<k<<" | "<<X[i]<<"\t|\t";
+            for(int j ; j < n ; j++){
+                cout<<J[i][j]<<"\t";
+            }
+            cout<< "\t|\t"<<JF[i]<<"\t|\t"<<NF<<endl;
+        }else{
+            cout<<"  | "<<X[i]<<"\t|\t";
+            for(int j ; j < n ; j++){
+                cout<<J[i][j]<<"\t";
+            }
+            cout<< "\t|\t"<<JF[i]<<"\t|\t"<<endl;
 
+        }
+    }
+}
 
 
 
