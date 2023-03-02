@@ -7,6 +7,61 @@ using namespace std;
 typedef vector<double> Vector;
 typedef vector<Vector> Matriz;
 
+void Newton();
+void Portada();
+int ElegirSistema();
+Matriz Producto(Matriz matriza, Matriz matrizb);
+Matriz Resta(Matriz a, Matriz b);
+Matriz Inversa(Matriz matriz);
+
+
+
+class Funciones{
+
+  public:
+
+    int sistema;
+
+    Vector F(Vector X);
+    double f(int fun, Vector X);
+    Matriz J(Vector X);
+
+};
+
+
+int main() {
+    Newton();
+    return 0;
+}
+
+
+//Funciones del método
+
+void Newton(){
+    Funciones f;
+    Portada();
+    bool continua = true;
+    char resp;
+    while(true){ //Elegir sistema de ecuaciones
+        f.sistema = ElegirSistema();
+        while(true){ //Elegir datos iniciales
+
+
+            cout<<"Desea cambiar los datos de entrada para buscar otra raiz? (S/N): "<<endl;
+            cin>>resp;
+            if(resp=='n'||resp=='N'){
+                break;
+            }
+        }
+        cout<<"Desea resolver otro sistema de ecuaciones? (S/N): "<<endl;
+        cin>>resp;
+        if(resp=='n'||resp=='N'){
+            break;
+        }
+    }
+    cout<<"**Finalizo el metodo"<<endl;
+}
+
 void Portada(){ //Se imprime información de la escuela y nombres de los integrantes del equipo
   
   cout<<"\n\nUNIVERSIDAD NACIONAL AUTONOMA DE MEXICO"<<endl;
@@ -63,25 +118,87 @@ int ElegirSistema(){ //Función que imprime los sistemas de ecuaciones e ingresa
     return opcion;
 }
 
-class Funciones{
-  public:
-    int sistema;
+//Operaciones con matrices:
 
-    Matriz J(Vector X){
-        Matriz Jac;
-        if(sistema==1){
-
-        }else if(sistema == 2){
-
-        }else if(sistema == 3){
-
-        }else{
-            
+Matriz Producto(Matriz matriza, Matriz matrizb){ //Producto de 2 matrices
+    int m= matriza.size();
+    int p1= matriza[0].size();
+    int p2=matrizb.size();
+    int n=matrizb[0].size();
+    Vector vec;
+    double aux;
+    Matriz producto;
+    if(p1==p2){
+        for(int i = 0 ; i < m ; i++){
+            for(int j = 0 ; j < n ; j++){
+                aux=0;
+                for(int k = 0 ; k < p1 ; k++){
+                    aux+=matriza[i][k]*matrizb[k][j];
+                }
+                vec.push_back(aux);
+            }
+            producto.push_back(vec);
+            vec.clear();
         }
-        return Jac;
+        return producto;
+    }
+}
+
+Matriz Resta(Matriz a, Matriz b){
+    Matriz resultado;
+    Vector vecaux;
+    int m = a.size();
+    int n = a[0].size();
+    for(int i = 0 ; i < m ; i++){
+        for(int j = 0 ; j < n ; j++){
+            vecaux.push_back(a[i][j]-b[i][j]);
+        }
+        resultado.push_back(vecaux);
+        vecaux.clear();
+    }
+    return resultado;
+}
+
+Matriz Inversa(Matriz matriz){ //Inversa por Gauss-Jordan
+    int n = matriz[0].size();
+    double pivote;
+    Vector vecaux;
+    Matriz inversa;
+    for(int i = 0 ; i < n ; i++){ //se crea la matriz identidad y se almacena en la matriz inversa
+        for(int j = 0 ; j < n ; j++){
+            if(i==j){
+                vecaux.push_back(1);
+            }else{
+                vecaux.push_back(0);
+            }
+        }
+        inversa.push_back(vecaux);
+        vecaux.clear();
     }
 
-    Vector F(Vector X){
+    for(int i = 0 ; i < n ; i++){ //pivotes, cada columna
+        double pivote=matriz[i][i];
+        for(int j = 0 ; j < n ; j++){
+            matriz[i][j]=matriz[i][j]/pivote;
+            inversa[i][j]=inversa[i][j]/pivote;
+        }
+        for(int j = 0 ; j < n ; j++){//cada renglón
+            if(i!=j){
+                pivote=matriz[j][i];
+                for(int k = 0 ; k < n ; k++){//actualizacion de renglón
+                    matriz[j][k]=matriz[j][k]-(pivote*matriz[i][k]);
+                    inversa[j][k]=inversa[j][k]-(pivote*inversa[i][k]);
+                }
+            }
+        }
+    }
+
+    return inversa;
+}
+
+//Métodos de la clase Funciones
+
+Vector Funciones::F(Vector X){
         Vector Fx=X;
         if(sistema==1||sistema==2){
             Fx[0]=f(1, X);
@@ -94,7 +211,8 @@ class Funciones{
         return Fx;
     }
 
-    double f(int fun, Vector X){
+double Funciones::f(int fun, Vector X){
+
         if(sistema==1){         //se eligió el 1er sistema de ecuaciones
 
             if(fun == 1) return pow(X[0],2)+X[0]*X[1]-10;       //se desea calcular f1
@@ -121,19 +239,59 @@ class Funciones{
         }
     }
 
-};
+Matriz Funciones::J(Vector X){
+    Matriz Jac;
+    int n = X.size();
+    if(sistema==1){
+
+        Jac.assign(2,{0,0});
+        Jac[0][0]=2*X[0]+X[1];
+        Jac[0][1]=X[0];
+        Jac[1][0]=3*pow(X[1],2);
+        Jac[1][1]=6*X[0]*X[1]+1;
+
+    }else if(sistema == 2){
+
+        Jac.assign(2,{0,0});
+        Jac[0][0]=2*X[0];
+        Jac[0][1]=2*X[1];
+        Jac[1][0]=-exp(X[0]);
+        Jac[1][1]=-2;
+
+    }else if(sistema == 3){
+
+        Jac.assign(3,{0,0,0});
+        Jac[0][0]=4*X[0]-4;
+        Jac[0][1]=2*X[1];
+        Jac[0][2]=6*X[2]+6;
+        Jac[1][0]=2*X[0];
+        Jac[1][1]=2*X[1]-2;
+        Jac[1][2]=4*X[2];
+        Jac[2][0]=6*X[0]-12;
+        Jac[2][1]=2*X[1];
+        Jac[2][2]=-6*X[2];
 
 
-int main() {
-    Funciones f;
-    Portada();
-    while(true){
-        f.sistema = ElegirSistema();
-        cout<<f.sistema<<endl;
+    }else{
+
+        Jac.assign(3,{0,0,0});
+        Jac[0][0]=2*X[0]-4;
+        Jac[0][1]=2*X[1];
+        Jac[0][2]=0;
+        Jac[1][0]=2*X[0]-1;
+        Jac[1][1]=-12;
+        Jac[1][2]=0;
+        Jac[2][0]=6*X[0]-12;
+        Jac[2][1]=2*X[1];
+        Jac[2][2]=-6*X[2];
 
 
-        break;
     }
-
-  
+    return Jac;
 }
+
+
+
+
+
+
