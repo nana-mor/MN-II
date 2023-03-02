@@ -62,13 +62,63 @@ int ElegirSistema(){ //Función que imprime los sistemas de ecuaciones e ingresa
     return opcion;
 }
 
+class Funciones{
+  public:
+    int sistema;
+
+    Matriz J(Vector X){
+        Matriz Jac;
+        if(sistema==1){
+
+        }else if(sistema == 2){
+
+        }else if(sistema == 3){
+
+        }else{
+            
+        }
+        return Jac;
+    }
+
+    Vector F(Vector X){
+        Vector Fx;
+        if(sistema==1){
+
+        }else if(sistema == 2){
+
+        }else if(sistema == 3){
+
+        }else{
+            
+        }
+        return Fx;
+    }
+
+    double f(int fun, double x){
+        double resultado;
+        if(sistema==1){
+
+        }else if(sistema == 2){
+
+        }else if(sistema == 3){
+
+        }else{
+            
+        }
+        return resultado;
+
+    }
+    
+
+};
+
 
 int main() {
-    int sistema;
+    Funciones f;
     Portada();
     while(true){
-        sistema = ElegirSistema();
-        cout<<sistema<<endl;
+        f.sistema = ElegirSistema();
+        cout<<f.sistema<<endl;
 
 
         break;
